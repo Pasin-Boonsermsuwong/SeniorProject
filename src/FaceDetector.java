@@ -18,7 +18,7 @@ public class FaceDetector {
  
         CascadeClassifier faceDetector = new CascadeClassifier("CascadeClassifier/haarcascades/haarcascade_frontalface_alt.xml");
         Mat image = Imgcodecs
-                .imread("Obama.jpg");
+                .imread("prakaree.jpg");
  
         MatOfRect faceDetections = new MatOfRect();
         faceDetector.detectMultiScale(image, faceDetections);
