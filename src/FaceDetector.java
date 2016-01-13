@@ -1,4 +1,4 @@
-
+  
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
@@ -18,7 +18,7 @@ public class FaceDetector {
  
         CascadeClassifier faceDetector = new CascadeClassifier("CascadeClassifier/haarcascades/haarcascade_frontalface_alt.xml");
         Mat image = Imgcodecs
-                .imread("prakaree.jpg");
+                .imread("55258.jpg");
  
         MatOfRect faceDetections = new MatOfRect();
         faceDetector.detectMultiScale(image, faceDetections);
