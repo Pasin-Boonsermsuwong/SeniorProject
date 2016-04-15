@@ -1,43 +1,44 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
+import org.neuroph.core.NeuralNetwork;
+import org.neuroph.imgrec.ImageRecognitionPlugin;
 import org.neuroph.nnet.MultiLayerPerceptron;
-import org.slf4j.Logger;
-import org.slf4j.spi.LocationAwareLogger;
 
 public class Neuroph {
 
 	public static void main(String[] args) {
-		
+		/*
 		MultiLayerPerceptron m;
 		// TODO Auto-generated method stub
-		FileInputStream fin = null;
-		try {
-			fin = new FileInputStream("N3.nnet");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		m = (MultiLayerPerceptron) NeuralNetwork.createFromFile("N3.nnet");
+		ImageRecognitionPlugin imageRecognition = (ImageRecognitionPlugin)m.getPlugin(ImageRecognitionPlugin.class);
+		System.out.println(imageRecognition);
+		*/
 		
-		ObjectInputStream ois = null;
-		try {
-			ois = new ObjectInputStream(fin);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			m = (MultiLayerPerceptron) ois.readObject();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//System.out.println("Huehue");
+	    NeuralNetwork nnet = NeuralNetwork.createFromFile("N3.nnet"); // load trained neural network saved with Neuroph Studio
+	    // get the image recognition plugin from neural network
+	    ImageRecognitionPlugin imageRecognition = (ImageRecognitionPlugin)nnet.getPlugin(ImageRecognitionPlugin.class); // get the image recognition plugin from neural network
+	    
+	    
+	    
+	    
+	    ImageManager im = new ImageManager();
+	    ArrayList<File> filelist = new ArrayList<File>();
+	    im.listFile(im.croppedFaceFolderPath, filelist);
+	    //System.out.println(Arrays.toString(filelist.toArray()));
+	    System.out.println("Load list of cropped faces, no. of pic loaded = "+filelist.size());
+	    
+	    for(File f: filelist){
+	    	
+	     //    System.out.println("Output: "+output.toString());
+
+	    }
+	
+	    
 	}
 
 }

@@ -25,5 +25,10 @@
 	<classpathentry kind="lib" path="logback-1.1.7/logback-access-1.1.7.jar"/>
 	<classpathentry kind="lib" path="logback-1.1.7/logback-core-1.1.7.jar"/>
 	<classpathentry kind="lib" path="logback-1.1.7/logback-classic-1.1.7.jar"/>
+	<classpathentry kind="lib" path="commons-lang3-3.4/commons-lang3-3.4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/SeniorProject/commons-lang3-3.4/commons-lang3-3.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
