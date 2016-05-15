@@ -30,5 +30,12 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/SeniorProject/commons-lang3-3.4/commons-lang3-3.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="flandmark-1.07-0.9.jar"/>
+	<classpathentry kind="lib" path="javacpp.jar"/>
+	<classpathentry kind="lib" path="jaxb-ri/lib/jaxb-api.jar"/>
+	<classpathentry kind="lib" path="jaxb-ri/lib/jaxb-core.jar"/>
+	<classpathentry kind="lib" path="jaxb-ri/lib/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="jaxb-ri/lib/jaxb-jxc.jar"/>
+	<classpathentry kind="lib" path="jaxb-ri/lib/jaxb-xjc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
