@@ -47,7 +47,7 @@ import org.bytedeco.javacpp.flandmark.FLANDMARK_Model;
 //Main class to detect multi faces from image and save output
 public class ImageManager {
 
-	public String PATH_PROCESSED_LIST = "C:\\opencv\\workfile\\ProcessedImage.txt";   //txt file
+	public static String PATH_PROCESSED_LIST = "C:\\opencv\\workfile\\ProcessedImage.txt";   //txt file
 	String[] processedImages;
 	public String PATH_IMAGE_FOLDER = "C:\\opencv\\workfile\\ImageFolder";
 	public String PATH_OUTPUT = "C:\\opencv\\workfile\\ImageOutput";
@@ -65,6 +65,8 @@ public class ImageManager {
 
 	final File flandmarkModelFile = new File("flandmark_model.dat");
 	ArrayList<ImgData> featureData = new ArrayList<ImgData>();
+
+	public Gui_ImageManager gui;
 	/**cropped image file format:
 	 * 
 	 * Delimiter = "_" //lastIndexOf
@@ -78,14 +80,14 @@ public class ImageManager {
 		im.readProcessedImages();
 		//(String path, boolean createOutput, boolean highlightFeatures, boolean createCropped, int w, int h, boolean greyScale, String format, boolean saveToSubfolder)
 		boolean savePreprocess = false;
-		boolean createOutput = false;		//save picture + rectangle around face
+		boolean createOutput = true;		//save picture + rectangle around face
 		boolean highlightFeatures = false;	//rectangle around eye,mouth,nose
 		boolean createCropped = true;		//save face as separate image
 		boolean highlightSurf = false;		//highlight features keypoints
-		int w = 0;
-		int h = 0;
-		String format = "png";
-		im.processImage(im.PATH_IMAGE_FOLDER,savePreprocess,createOutput,highlightFeatures,createCropped,highlightSurf,w, h, format);
+		int w = 92;
+		int h = 112;
+		String format = "pgm";
+		im.processImage(im.PATH_IMAGE_FOLDER,savePreprocess,createOutput,highlightFeatures,createCropped,highlightSurf,w, h, format,false);
 		//im.postProcess();
 	}
 
@@ -147,16 +149,15 @@ public class ImageManager {
 		processedImages =  lines.toArray(new String[lines.size()]);
 	}
 
-	public void processImage(String path,boolean savePreprocess, boolean createOutput, boolean highlightFeatures ,boolean createCropped, boolean highlightSurf, int w, int h, String format) {
-		int successCount = 0;
-		
+	public void processImage(String path,boolean savePreprocess, boolean createOutput, boolean highlightFeatures ,boolean createCropped, boolean highlightSurf, int w, int h, String format, boolean ignoreProcessList) {
+		//int successCount = 0;
 		if(processedImages==null)processedImages = new String[0];
 		File root = new File( path );
 		File[] list = root.listFiles();
 		if (list == null) return;
 		for ( File f : list ) {
 			if ( f.isDirectory() ) {
-				processImage(f.getAbsolutePath(),savePreprocess,createOutput,highlightFeatures,createCropped,highlightSurf, w, h, format);
+				processImage(f.getAbsolutePath(),savePreprocess,createOutput,highlightFeatures,createCropped,highlightSurf, w, h, format,ignoreProcessList);
 			}
 			else {
 				CascadeClassifier faceDetector = new CascadeClassifier(this.DETECTOR_FACE);
@@ -164,7 +165,7 @@ public class ImageManager {
 				//Check if list is in array
 				String filepath = f.getAbsolutePath();
 				String filename = f.getName();
-				if(Arrays.binarySearch(processedImages, filepath)<0){
+				if(Arrays.binarySearch(processedImages, filepath)<0||ignoreProcessList){
 					newProcessedImage.add(filepath); //add to list of processed image
 					//Process new image
 					System.out.println("New file to process: " + filename);
@@ -213,7 +214,7 @@ public class ImageManager {
 
 					faceDetector.detectMultiScale(image, faceDetections);
 					System.out.println(String.format("Detected %s faces", faceDetections.toArray().length));
-					if(faceDetections.toArray().length==1)successCount++;
+					//	if(faceDetections.toArray().length==1)successCount++;
 					for (Rect rect : faceDetections.toArray()) {	
 						//MatOfInt moi = new MatOfInt();
 						Mat croppedImage = image.submat(rect);
@@ -350,10 +351,10 @@ public class ImageManager {
 						//
 
 						if(createCropped){
-							
+
 							//Cropped format = <filename>_x,y,width,height.<fileformat>
 							StringBuilder sb = new StringBuilder();
-							
+
 							sb.append(filename.substring(0, filename.lastIndexOf('.')));
 							sb.append('_');	sb.append(rect.x);
 							sb.append(',');	sb.append(rect.y);
@@ -365,7 +366,7 @@ public class ImageManager {
 								sb.append(filename.substring(filename.lastIndexOf('.'),filename.length()));
 							}
 							String newFileName = sb.toString();
-							
+
 							String formattedFilepath = PATH_OUTPUT_CROPPED
 									+filepath.substring(filepath.indexOf(PATH_IMAGE_FOLDER)+PATH_IMAGE_FOLDER.length(),filepath.lastIndexOf('\\')) + "\\"
 									+newFileName;
@@ -390,6 +391,7 @@ public class ImageManager {
 
 							//Save cropped image to folder
 							System.out.println(String.format("Writing[C] %s", formattedFilepath));
+							if(gui!=null)gui.ProgressUpdate(false,"Writing "+ formattedFilepath);
 							Highgui.imwrite(formattedFilepath, croppedImage);
 						}
 
@@ -404,6 +406,7 @@ public class ImageManager {
 						if(!new File(outputRoot).exists())new File(outputRoot).mkdirs();
 						System.out.println(String.format("Writing: %s", formattedFilepath));
 						try{
+							if(gui!=null)gui.ProgressUpdate(true,"Writing "+ formattedFilepath);
 							Highgui.imwrite(formattedFilepath, imageClone);
 						}catch(CvException e){
 							System.err.println(filename+" is of unsupported filetype");
@@ -426,7 +429,7 @@ public class ImageManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("Success count: "+successCount);
+		//	System.out.println("Success count: "+successCount);
 
 		//TODO: save all featureData to file
 		ArrayList<ImgData> oldData = (ArrayList<ImgData>) readObjectFromFile();
@@ -499,16 +502,19 @@ public class ImageManager {
 		System.out.println(PATH_PROCESSED_LIST);
 		try {
 			FileUtils.forceDelete(new File(PATH_PROCESSED_LIST));
-
-		} catch (IOException e1) {e1.printStackTrace();}
+		} catch (IOException e1) {
+			System.out.println("Cannot delete pathProcessed file as it does not exists");
+		}
 		try {
 			FileUtils.forceDelete(new File(PATH_FEATURE_OUTPUT));
 		} catch (IOException e1) {
 			System.out.println("Cannot delete featureOutput file as it does not exists");
 		}
+		
 		try {
 			new File(PATH_PROCESSED_LIST).createNewFile();
 		} catch (IOException e) {e.printStackTrace();}
+		 
 	}
 
 	public static int countLines(String filename) throws IOException {
